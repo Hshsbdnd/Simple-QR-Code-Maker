@@ -8,6 +8,8 @@ using Simple_QR_Code_Maker.Extensions;
 using Simple_QR_Code_Maker.Helpers;
 using Simple_QR_Code_Maker.Models;
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Graphics.Printing.Workflow;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -230,6 +232,43 @@ public partial class MainViewModel : ObservableRecipient, INavigationAware
         await SaveAllFiles(FileKind.PNG);
     }
 
+    [RelayCommand]
+    private async Task SaveSvg()
+    {
+        if (QrCodeBitmaps.Count == 0)
+            return;
+
+        SaveCurrentStateToHistory();
+
+        if (QrCodeBitmaps.Count == 1)
+
+        {
+            await SaveSingle(FileKind.SVG, QrCodeBitmaps.First());
+            return;
+        }
+
+        await SaveAllFiles(FileKind.SVG);
+    }
+
+    [RelayCommand]
+    private void CopyPng()
+    {
+        if (QrCodeBitmaps.Count ==0)
+            return;
+
+        DataPackage dataPackage = new();
+        InMemoryRandomAccessStream inMemoryStream = new();
+        RandomAccessStreamReference streamReference = RandomAccessStreamReference.CreateFromStream(QrCodeBitmaps[0]?.CodeAsBitmap?.PixelBuffer.AsStream().AsRandomAccessStream());
+        dataPackage.SetBitmap(streamReference);
+        Clipboard.SetContent(dataPackage);
+    }
+
+    [RelayCommand]
+    private async Task CopySvg()
+    {
+
+    }
+
     private async Task SaveSingle(FileKind kindOfFile, BarcodeImageItem imageItem)
     {
         FileSavePicker savePicker = new()
@@ -299,7 +338,6 @@ public partial class MainViewModel : ObservableRecipient, INavigationAware
             SuggestedStartLocation = PickerLocationId.PicturesLibrary,
         };
 
-
         Window saveWindow = new();
         IntPtr windowHandleSave = WindowNative.GetWindowHandle(saveWindow);
         InitializeWithWindow.Initialize(folderPicker, windowHandleSave);
@@ -325,25 +363,6 @@ public partial class MainViewModel : ObservableRecipient, INavigationAware
         }
     }
 
-
-    [RelayCommand]
-    private async Task SaveSvg()
-    {
-        if (QrCodeBitmaps.Count == 0)
-            return;
-
-        SaveCurrentStateToHistory();
-
-        if (QrCodeBitmaps.Count == 1)
-
-        {
-            await SaveSingle(FileKind.SVG, QrCodeBitmaps.First());
-            return;
-        }
-
-        await SaveAllFiles(FileKind.SVG);
-    }
-
     public async void OnNavigatedTo(object parameter)
     {
         await LoadHistory();
@@ -351,15 +370,17 @@ public partial class MainViewModel : ObservableRecipient, INavigationAware
 
     public void OnNavigatedFrom()
     {
-        if (!string.IsNullOrWhiteSpace(UrlText))
-            SaveCurrentStateToHistory();
+        SaveCurrentStateToHistory();
 
         LocalSettingsService.SaveSettingAsync(nameof(HistoryItems), HistoryItems);
     }
 
     private void SaveCurrentStateToHistory()
     {
-        HistoryItem historyItem = new()
+        if (!string.IsNullOrWhiteSpace(UrlText))
+            return;
+
+            HistoryItem historyItem = new()
         {
             CodesContent = UrlText,
             Foreground = ForegroundColor,

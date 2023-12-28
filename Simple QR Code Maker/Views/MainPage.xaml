@@ -139,18 +139,53 @@
                             HorizontalAlignment="Center"
                             Orientation="Horizontal"
                             Spacing="10">
-                            <Button
-                                x:Name="SavePngButton"
+                            <SplitButton
                                 Command="{x:Bind ViewModel.SavePngCommand}"
-                                Content="Save PNG..."
                                 IsEnabled="{x:Bind ViewModel.CanSaveImage, Mode=OneWay}"
-                                ToolTipService.ToolTip="Save code(s) as PNG files" />
-                            <Button
-                                x:Name="SaveSvgButton"
-                                Command="{x:Bind ViewModel.SaveSvgCommand}"
-                                Content="Save SVG..."
-                                IsEnabled="{x:Bind ViewModel.CanSaveImage, Mode=OneWay}"
-                                ToolTipService.ToolTip="Save code(s) as SVG files" />
+                                ToolTipService.ToolTip="Save all of the QR Codes as files...">
+                                <SplitButton.Content>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Viewbox Height="14">
+                                            <SymbolIcon Symbol="Save" />
+                                        </Viewbox>
+                                        <TextBlock Text="Save..." />
+                                    </StackPanel>
+                                </SplitButton.Content>
+                                <SplitButton.Flyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem
+                                            Command="{x:Bind ViewModel.SavePngCommand}"
+                                            Text="As PNG... (default)"
+                                            ToolTipService.ToolTip="Save code(s) as PNG files" />
+                                        <MenuFlyoutItem
+                                            Command="{x:Bind ViewModel.SaveSvgCommand}"
+                                            Text="As SVG..."
+                                            ToolTipService.ToolTip="Save code(s) as SVG files" />
+                                    </MenuFlyout>
+                                </SplitButton.Flyout>
+                            </SplitButton>
+                            <SplitButton Command="{x:Bind ViewModel.SavePngCommand}" IsEnabled="{x:Bind ViewModel.CanSaveImage, Mode=OneWay}">
+                                <SplitButton.Content>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Viewbox Height="14">
+                                            <SymbolIcon Symbol="Copy" />
+                                        </Viewbox>
+                                    </StackPanel>
+                                </SplitButton.Content>
+                                <SplitButton.Flyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem
+                                            Command="{x:Bind ViewModel.CopyPngCommand}"
+                                            Text="Copy PNG... (default)"
+                                            ToolTipService.ToolTip="Save code(s) as PNG files" />
+                                        <MenuFlyoutItem
+                                            Command="{x:Bind ViewModel.CopySvgCommand}"
+                                            Text="Copy SVG..."
+                                            ToolTipService.ToolTip="Save code(s) as SVG files" />
+                                    </MenuFlyout>
+                                </SplitButton.Flyout>
+                            </SplitButton>
+
                             <Button Command="{x:Bind ViewModel.OpenFileCommand}" ToolTipService.ToolTip="Open an image to read and extract text from any codes">
                                 <Viewbox Height="16">
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xEE6F;" />
